@@ -1,12 +1,13 @@
-var mineBoard = {
+function Mineboard(rows, cols, mines) {
 
    // Eventually will be user inputs
-   numberOfMines: 5,
-   heightOfBoard: 7,
-   widthOfBoard: 7,
+   var self = this;
+   this.numberOfMines = mines;
+   this.heightOfBoard = cols;
+   this.widthOfBoard = rows;
 
    // Functions
-   create: function() {
+   this.create = function() {
 
       let board = document.createElement('div');
       board.setAttribute('id', 'board');
@@ -18,15 +19,19 @@ var mineBoard = {
          for (let l = 0; l < this.heightOfBoard; l++) {
             let cell = document.createElement('div');
             cell.className = 'cell';
+            cell.addEventListener("click", function(e) {self.revealCell();}, false);
             row.appendChild(cell);
          };
       };
       document.body.appendChild(board);
       this.placeMines();
-      console.log(this);
    },
 
-   placeMines: function() {
+   this.revealCell = function(e) {
+      console.log('hello');
+   }
+
+   this.placeMines = function() {
       // Eventually will be user inputed
       let cellsToPlaceMines = document.getElementsByClassName('cell');
 
@@ -47,22 +52,11 @@ var mineBoard = {
             i += 1;
          }
       }
-   },
-
-   showSpace: function(eventTarget) {
-      if (eventTarget.hasChildNodes()) {
-         console.log(eventTarget);
-         // eventTarget.getElementsByClassName('mine').style.display = 'inline-block';
-      }
    }
 }
 
-mineBoard.create();
-
-document.getElementById("board").addEventListener("click", function( event ) {
-   eventTarget = event.target
-   mineBoard.showSpace(eventTarget);
- }, false);
+var easy = new Mineboard(7, 7, 5);
+easy.create();
 
 // Generate the board with a function
    // Number of mines will eventually be a user input
