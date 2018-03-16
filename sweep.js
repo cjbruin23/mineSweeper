@@ -16,7 +16,7 @@ function Mineboard(rows, cols, mines) {
          };
          map.push(newRow);
       };
-      this.placeMines();
+      this.placeMinesArray();
    }
 
    // Functions
@@ -24,7 +24,6 @@ function Mineboard(rows, cols, mines) {
 
       let board = document.createElement('div');
       board.setAttribute('id', 'board');
-      console.log(map);
 
       for (let i = 0; i < map.length; i++) {
          let row = document.createElement('div');
@@ -32,11 +31,9 @@ function Mineboard(rows, cols, mines) {
          board.appendChild(row);
          for (let l = 0; l < map[i].length; l++) {
             let cell = document.createElement('div');
-            let checkIfEmpty = map[i][l].includes(" ")
-            if (checkIfEmpty) {
-               cell.className = 'cell';
-            } else {
-               cell.className = 'mine';
+            cell.className = 'cell';
+            if (!map[i][l].includes(' ')) {
+               cell.id = 'mine';
             }
 
             cell.addEventListener("click", function(e) {self.revealCell();}, false);
@@ -47,22 +44,19 @@ function Mineboard(rows, cols, mines) {
    }
 
    this.revealCell = function(e) {
-      let cell = event.target
-      let mineObj = cell.childNodes[0];
-      let containsMine = (typeof(event.target.childNodes[0]) !== 'undefined');
-      event.target.style.backgroundColor = 'white';
-
-      if (containsMine) {
-         mineObj.style.display = 'block';
-         this.showMines();
-      } else {
-         return
+      let cell = event.target;
+      cell.style.backgroundColor = 'white';
+      if (cell.id === 'mine') {
+         cell.style.backgroundImage = "url('mine.png')";
+         this.mineExplosion();
       }
    }
 
-   this.placeMines = function() {
-      // Eventually will be user inputed
-      let cellsToPlaceMines = document.getElementsByClassName('cell');
+   this.mineExplosion = function() {
+      let mines = document.getElementsByClassName('cell');
+   }
+
+   this.placeMinesArray = function() {
       // Randomly generating nums to place mines
       let mineIteration = 0;
 
@@ -73,12 +67,10 @@ function Mineboard(rows, cols, mines) {
          if (map[x][y].includes(' ')) {
             map[x][y] = ['m'];
             mineIteration ++;
-            console.log(mineIteration);
-         }
+         };
       }
       this.createBoard();
    }
-
 }
 
 var easy = new Mineboard(7, 7, 5);
