@@ -33,11 +33,14 @@ function Mineboard(rows, cols, mines) {
          for (let l = 0; l < map[i].length; l++) {
             let cell = document.createElement('div');
             cell.className = 'cell';
-            if (map[i][l].includes('m')) {
+            if (map[i][l][0] === 'm') {
                cell.className = 'cell mine';
             } else if (typeof(map[i][l][0]) == 'number') {
                cell.className = 'cell number';
-               cell.innerHTML = map[i][l][0];
+               let paraTag = document.createElement('p')
+               let text = document.createTextNode(map[i][l][0])
+               paraTag.appendChild(text);
+               cell.appendChild(paraTag);
             }
 
             cell.addEventListener("click", function(e) {
@@ -52,10 +55,13 @@ function Mineboard(rows, cols, mines) {
    this.revealCell = function(e) {
       let cell = event.target;
       let hasMineClass = cell.classList.contains('mine');
+      let hasNumberClass = cell.classList.contains('number');
       cell.style.backgroundColor = 'white';
       if (hasMineClass) {
          cell.style.backgroundImage = "url('mine.png')";
          this.mineExplosion();
+      } else if (hasNumberClass) {
+         cell.firstChild.style.display = 'block';
       }
    }
 
