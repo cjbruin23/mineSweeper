@@ -8,6 +8,7 @@ function Mineboard(rows, cols, mines) {
    var map = [];
 
    this.createBoardGrid = function() {
+      console.log(map);
 
       for (let i = 0; i < this.widthOfBoard; i++) {
          let newRow = [];
@@ -34,6 +35,9 @@ function Mineboard(rows, cols, mines) {
             cell.className = 'cell';
             if (map[i][l].includes('m')) {
                cell.className = 'cell mine';
+            } else if (typeof(map[i][l][0]) == 'number') {
+               cell.className = 'cell number';
+               cell.innerHTML = map[i][l][0];
             }
 
             cell.addEventListener("click", function(e) {
@@ -77,8 +81,8 @@ function Mineboard(rows, cols, mines) {
          };
       };
 
-      this.createBoard();
       this.placeNumbersArray();
+      this.createBoard();
    };
 
    this.countMines = function(row, col) {
@@ -107,17 +111,15 @@ function Mineboard(rows, cols, mines) {
    };
 
    this.placeNumbersArray = function() {
-      let finalCount = 0;
 
       for (let i = 0; i < map.length; i++) {
          for (let j = 0; j < map[i].length; j++) {
-            console.log('next iteration');
             if (map[i][j][0] === ' ') {
                let newNum = this.countMines(i, j);
-               console.log(newNum);
+               map[i][j][0] = newNum;
             };
-         }
-      }
+         };
+      };
 
       // A for loop that goes through each cell
       // Check to see if theres a mine within the bordering cells
