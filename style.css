@@ -1,12 +1,5 @@
-#board {
-   display: flex;
-}
-.row {
-   display: flex;
-   flex-direction: column;
-}
+.row {display: flex;}
 .cell {
-   flex: 1;
    border: 1px solid black;
    width: 100px;
    height: 100px;

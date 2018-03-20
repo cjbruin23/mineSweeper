@@ -32,13 +32,14 @@ function Mineboard(rows, cols, mines) {
          board.appendChild(row);
          for (let l = 0; l < map[i].length; l++) {
             let cell = document.createElement('div');
+            cell.id = String(i) + String(l);
             cell.className = 'cell';
             if (map[i][l][0] === 'm') {
                cell.className = 'cell mine';
             } else if (typeof(map[i][l][0]) == 'number') {
                cell.className = 'cell number';
-               let paraTag = document.createElement('p')
-               let text = document.createTextNode(map[i][l][0])
+               let paraTag = document.createElement('p');
+               let text = document.createTextNode(map[i][l][0]);
                paraTag.appendChild(text);
                cell.appendChild(paraTag);
             }
@@ -52,6 +53,49 @@ function Mineboard(rows, cols, mines) {
       document.body.appendChild(board);
    };
 
+   this.showEmptySpaces = function(eventInfo) {
+
+      const queue = [];
+      let idInfo = eventInfo.id;
+      const row = Number(eventInfo.id[0]);
+      const col = Number(eventInfo.id[1]);
+      const neighbors = [
+         [row-1, col], // Up
+         [row, col+1], // Right
+         [row+1, col], // Down
+         [row, col-1]
+      ];
+
+      queue.push(row, col);
+
+      while (queue.length > 0) {
+         const curRow = queue.shift();
+         const curCol = queue.shift();
+
+         for (let i = 0; i < neighbors.length; i++) {
+            let nextRow = neighbors[i][0];
+            let nextCol = neighbors[i][1];
+            console.log(this.map);
+
+            if (nextRow > 0 || nextCol > 0) {
+               let neighborToCheck = this.map[nextRow][nextCol];
+               console.log(neighborToCheck);
+            }
+
+         }
+      }
+      // Pass in info about the positioning of the event
+      // Create a queue that will keep track of the positions to check
+      // Create a while loop that will continue to loop until the queue has nothing left to check
+      // Take out the first two items in the queue; first being row, second being column
+      // Make a list that represents the directions we need to check
+      // Loop through the neighbor list
+         // Check if the neighbors are empty or not
+         // If it is not empty open and go no further
+         // If it is empty, open and add that one to the queue
+         // Do not open mines
+   }
+
    this.revealCell = function(e) {
       let cell = event.target;
       let hasMineClass = cell.classList.contains('mine');
@@ -62,7 +106,8 @@ function Mineboard(rows, cols, mines) {
          this.mineExplosion();
       } else if (hasNumberClass) {
          cell.firstChild.style.display = 'block';
-      }
+         this.showEmptySpaces(cell);
+      };
    }
 
    this.mineExplosion = function() {
@@ -96,7 +141,11 @@ function Mineboard(rows, cols, mines) {
          [row + 1, col], // Check Down
          [row - 1, col], // Check Up
          [row, col - 1], // Check Left
-         [row, col + 1]  // Check Right
+         [row, col + 1],  // Check Right
+         [row-1, col-1], // Check Up and to Left
+         [row-1, col+1], // Check Up and to the Right
+         [row+1, col+1], // Check Down and to the Right
+         [row+1, col-1] // Check Down and to the Left 
       ]
       let count = 0;
 
@@ -120,18 +169,12 @@ function Mineboard(rows, cols, mines) {
 
       for (let i = 0; i < map.length; i++) {
          for (let j = 0; j < map[i].length; j++) {
-            if (map[i][j][0] === ' ') {
                let newNum = this.countMines(i, j);
+               if (map[i][j][0] === ' ' && newNum > 0) {
                map[i][j][0] = newNum;
             };
          };
       };
-
-      // A for loop that goes through each cell
-      // Check to see if theres a mine within the bordering cells
-      // Send that cell information to countMines
-      // Return the count of the mines surrounding the cell
-      // Place that number as the innerHTML or something
    };
 }
 
