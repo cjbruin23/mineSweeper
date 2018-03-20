@@ -8,7 +8,6 @@ function Mineboard(rows, cols, mines) {
    var map = [];
 
    this.createBoardGrid = function() {
-      console.log(map);
 
       for (let i = 0; i < this.widthOfBoard; i++) {
          let newRow = [];
@@ -54,34 +53,64 @@ function Mineboard(rows, cols, mines) {
    };
 
    this.showEmptySpaces = function(eventInfo) {
-
       const queue = [];
+
+      // Information of what cell was clicked on
+      // Using this to check on neighbors
       let idInfo = eventInfo.id;
-      const row = Number(eventInfo.id[0]);
-      const col = Number(eventInfo.id[1]);
+      let row = Number(eventInfo.id[0]);
+      let col = Number(eventInfo.id[1]);
+
+      // An array of the possible neighbors next to the whatever cell we are toggling
       const neighbors = [
          [row-1, col], // Up
          [row, col+1], // Right
          [row+1, col], // Down
-         [row, col-1]
+         [row, col-1] // Left
+         // [row-1, col-1],
+         // [row-1, col+1],
+         // [row+1, col+1],
+         // [row+1, col-1]
       ];
 
       queue.push(row, col);
 
-      while (queue.length > 0) {
-         const curRow = queue.shift();
-         const curCol = queue.shift();
+      while (typeof queue !== 'undefined' && queue.length > 0) {
+         // Taking out the first two items in the queue, which are row and col
+         // of what needs to be analyzed
+         let curRow = queue.shift();
+         let curCol = queue.shift();
+
+         // I need a way to make sure the neighboring cells aren't constantly
+         // backtracking to the original cell, creating an infinite loop
+         // let excludeLastItem = map[curRow][curCol][0] = 'c';
 
          for (let i = 0; i < neighbors.length; i++) {
+            // Get the coordinate of whatever neighbor we are checking at the time
             let nextRow = neighbors[i][0];
             let nextCol = neighbors[i][1];
-            console.log(this.map);
 
-            if (nextRow > 0 || nextCol > 0) {
-               let neighborToCheck = this.map[nextRow][nextCol];
-               console.log(neighborToCheck);
-            }
+            //Set boundaries
+            let verticalBounds = nextRow >= 0 && nextCol >= 0
+            let horizontalBounds = nextRow < map.length && nextCol < map[0].length
 
+            if (verticalBounds && horizontalBounds) {
+
+               let neighborToCheck = map[nextRow][nextCol];
+               if (neighborToCheck.includes(' ')) {
+                  queue.push(nextRow, nextCol);
+                  map[nextRow][nextCol][0] = 'c';
+                  console.log(queue);
+                  // Making sure the image shows up on the DOM
+                  // !This needs to eventually be its own function
+                     // Create a function called reveal cell that will reveal various cells and change reveal cell to handleClick
+                  let cellToReveal = document.getElementById(String(nextRow) + String(nextCol));
+                  cellToReveal.style.backgroundColor = 'white';
+               } else if (neighborToCheck.includes('c')) {
+                  continue;
+               } else {
+                  continue;
+               }
          }
       }
       // Pass in info about the positioning of the event
@@ -95,6 +124,7 @@ function Mineboard(rows, cols, mines) {
          // If it is empty, open and add that one to the queue
          // Do not open mines
    }
+}
 
    this.revealCell = function(e) {
       let cell = event.target;
@@ -106,8 +136,9 @@ function Mineboard(rows, cols, mines) {
          this.mineExplosion();
       } else if (hasNumberClass) {
          cell.firstChild.style.display = 'block';
+      } else {
          this.showEmptySpaces(cell);
-      };
+      }
    }
 
    this.mineExplosion = function() {
@@ -145,7 +176,7 @@ function Mineboard(rows, cols, mines) {
          [row-1, col-1], // Check Up and to Left
          [row-1, col+1], // Check Up and to the Right
          [row+1, col+1], // Check Down and to the Right
-         [row+1, col-1] // Check Down and to the Left 
+         [row+1, col-1] // Check Down and to the Left
       ]
       let count = 0;
 
@@ -178,7 +209,7 @@ function Mineboard(rows, cols, mines) {
    };
 }
 
-var easy = new Mineboard(4, 4, 3);
+var easy = new Mineboard(7, 7, 5);
 easy.createBoardGrid();
 
 // Generate a nested array map with several options: ' ', 'B'
