@@ -44,13 +44,77 @@ function Mineboard(rows, cols, mines) {
             };
 
             cell.addEventListener("click", function(e) {
-               self.revealCell();
+               self.onClick();
             }, false);
             row.appendChild(cell);
          };
       };
       document.body.appendChild(board);
    };
+
+   this.revealCell = function(typeOfCell, row, col) {
+      map[row][col] = 's';
+      cellToReveal = document.getElementById(String(row) + String(col));
+      cellToReveal.style.backgroundColor = 'white';
+      switch (typeOfCell) {
+         case 'mine':
+            console.log('mine');
+            break;
+         case 'number':
+            childToReveal = cellToReveal.childNodes[0];
+            childToReveal.style.display = 'block';
+            break;
+      };
+      this.checkWin();
+   }
+
+   this.checkWin = function() {
+      let mineCount = 0;
+      let checkCount = 0;
+      numberOfCells = this.heightOfBoard * this.widthOfBoard;
+      for (let i = 0; i < map.length; i++) {
+         for (let j = 0; j < map.length; j++) {
+            if (map[i][j] === 's') {
+               checkCount += 1;
+            } else if (map[i][j].includes('m')) {
+               mineCount += 1;
+            }
+         }
+      }
+      console.log(map);
+      if (mineCount === numberOfCells - checkCount) {
+         alert('You Win');
+      }
+      return;
+   }
+
+   this.sweep = function(queue, neighbors) {
+      for (let i = 0; i < neighbors.length; i++) {
+         // Get the coordinate of whatever neighbor we are checking at the time
+         let nextRow = neighbors[i][0];
+         let nextCol = neighbors[i][1];
+
+         //Set boundaries
+         let verticalBounds = nextRow >= 0 && nextCol >= 0;
+         let horizontalBounds = nextRow < map.length && nextCol < map[0].length
+
+         if (verticalBounds && horizontalBounds) {
+
+            let neighborToCheck = map[nextRow][nextCol];
+
+            if (neighborToCheck.includes(' ')) {
+               this.revealCell('empty', nextRow, nextCol);
+               queue.push(nextRow, nextCol);
+               map[nextRow][nextCol][0] = 'c';
+               this.revealCell('empty', nextRow, nextCol);
+            } else if (Number(neighborToCheck)) {
+               this.revealCell('number', nextRow, nextCol);
+            } else {
+               continue;
+            };
+         };
+      };
+   }
 
    this.showEmptySpaces = function(eventInfo) {
       const queue = [];
@@ -63,7 +127,7 @@ function Mineboard(rows, cols, mines) {
 
       queue.push(row,col);
 
-      while (typeof queue !== 'undefined' && queue.length > 0) {
+      while (queue.length) {
          // Taking out the first two items in the queue, which are row and col
          // of what needs to be analyzed
          let curRow = queue.shift();
@@ -77,73 +141,41 @@ function Mineboard(rows, cols, mines) {
             [curRow, curCol-1] // Left
          ]
 
-         // I need a way to make sure the neighboring cells aren't constantly
-         // backtracking to the original cell, creating an infinite loop
-
-         for (let i = 0; i < neighbors.length; i++) {
-            // Get the coordinate of whatever neighbor we are checking at the time
-            let nextRow = neighbors[i][0];
-            let nextCol = neighbors[i][1];
-
-            //Set boundaries
-            let verticalBounds = nextRow >= 0 && nextCol >= 0;
-            let horizontalBounds = nextRow < map.length && nextCol < map[0].length
-
-            if (verticalBounds && horizontalBounds) {
-
-               let neighborToCheck = map[nextRow][nextCol];
-               if (neighborToCheck.includes(' ')) {
-                  queue.push(nextRow, nextCol);
-                  map[nextRow][nextCol][0] = 'c';
-
-                  // !This needs to eventually be its own function
-                     // Create a function called reveal cell that will reveal various cells and change reveal cell to handleClick
-                  let cellToReveal = document.getElementById(String(nextRow) + String(nextCol));
-                  cellToReveal.style.backgroundColor = 'white';
-               } else if (Number(neighborToCheck)) {
-                  let cellToReveal = document.getElementById(String(nextRow) + String(nextCol));
-                  cellToReveal.style.backgroundColor = 'white';
-                  numToShow = cellToReveal.childNodes[0];
-                  numToShow.style.display = 'block';
-               } else {
-                  continue;
-            };
-         };
-      };
+         this.sweep(queue, neighbors);
    };
-   console.log(map);
 }
 
-   this.revealCell = function(e) {
+   this.onClick = function(e) {
       let cell = event.target;
       let hasMineClass = cell.classList.contains('mine');
       let hasNumberClass = cell.classList.contains('number');
-      cell.style.backgroundColor = 'white';
       if (hasMineClass) {
-         cell.style.backgroundImage = "url('mine.png')";
          this.mineExplosion();
       } else if (hasNumberClass) {
-         cell.firstChild.style.display = 'block';
+         this.revealCell('number', cell.id[0], cell.id[1])
       } else {
          this.showEmptySpaces(cell);
       };
    }
 
    this.mineExplosion = function() {
-      let mines = document.getElementsByClassName('cell');
+      let mines = document.getElementsByClassName('mine');
+
+      for (let i = 0; i < mines.length; i++) {
+         mines[i].style.backgroundColor = 'white';
+         mines[i].style.backgroundImage = "url('mine.png')";
+      }
+      alert('You lose');
    }
 
    this.placeMinesArray = function() {
-      // Randomly generating nums to place mines
       let mineIteration = 0;
 
       while (mineIteration < this.numberOfMines) {
          let x = Math.floor((Math.random() * this.widthOfBoard));
          let y = Math.floor((Math.random() * this.heightOfBoard));
 
-         if (x ===0, y === 0 ){
-            continue;
-         };
+         if (x === 0, y === 0 ){continue;};
 
          if (map[x][y].includes(' ')) {
             map[x][y] = ['m'];
