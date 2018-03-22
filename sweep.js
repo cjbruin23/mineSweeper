@@ -17,7 +17,7 @@ function Mineboard(rows, cols, mines) {
          map.push(newRow);
       };
       this.placeMinesArray();
-   }
+   };
 
    // Functions
    this.createBoard = function() {
@@ -41,7 +41,7 @@ function Mineboard(rows, cols, mines) {
                let text = document.createTextNode(map[i][l][0]);
                paraTag.appendChild(text);
                cell.appendChild(paraTag);
-            }
+            };
 
             cell.addEventListener("click", function(e) {
                self.revealCell();
@@ -61,19 +61,7 @@ function Mineboard(rows, cols, mines) {
       let row = Number(eventInfo.id[0]);
       let col = Number(eventInfo.id[1]);
 
-      // An array of the possible neighbors next to the whatever cell we are toggling
-      const neighbors = [
-         [row-1, col], // Up
-         [row, col+1], // Right
-         [row+1, col], // Down
-         [row, col-1] // Left
-         // [row-1, col-1],
-         // [row-1, col+1],
-         // [row+1, col+1],
-         // [row+1, col-1]
-      ];
-
-      queue.push(row, col);
+      queue.push(row,col);
 
       while (typeof queue !== 'undefined' && queue.length > 0) {
          // Taking out the first two items in the queue, which are row and col
@@ -81,9 +69,16 @@ function Mineboard(rows, cols, mines) {
          let curRow = queue.shift();
          let curCol = queue.shift();
 
+         // An array of the possible neighbors next to the whatever cell we are toggling
+         const neighbors = [
+            [curRow-1, curCol], // Up
+            [curRow, curCol+1], // Right
+            [curRow+1, curCol], // Down
+            [curRow, curCol-1] // Left
+         ]
+
          // I need a way to make sure the neighboring cells aren't constantly
          // backtracking to the original cell, creating an infinite loop
-         // let excludeLastItem = map[curRow][curCol][0] = 'c';
 
          for (let i = 0; i < neighbors.length; i++) {
             // Get the coordinate of whatever neighbor we are checking at the time
@@ -91,7 +86,7 @@ function Mineboard(rows, cols, mines) {
             let nextCol = neighbors[i][1];
 
             //Set boundaries
-            let verticalBounds = nextRow >= 0 && nextCol >= 0
+            let verticalBounds = nextRow >= 0 && nextCol >= 0;
             let horizontalBounds = nextRow < map.length && nextCol < map[0].length
 
             if (verticalBounds && horizontalBounds) {
@@ -100,30 +95,23 @@ function Mineboard(rows, cols, mines) {
                if (neighborToCheck.includes(' ')) {
                   queue.push(nextRow, nextCol);
                   map[nextRow][nextCol][0] = 'c';
-                  console.log(queue);
-                  // Making sure the image shows up on the DOM
+
                   // !This needs to eventually be its own function
                      // Create a function called reveal cell that will reveal various cells and change reveal cell to handleClick
                   let cellToReveal = document.getElementById(String(nextRow) + String(nextCol));
                   cellToReveal.style.backgroundColor = 'white';
-               } else if (neighborToCheck.includes('c')) {
-                  continue;
+               } else if (Number(neighborToCheck)) {
+                  let cellToReveal = document.getElementById(String(nextRow) + String(nextCol));
+                  cellToReveal.style.backgroundColor = 'white';
+                  numToShow = cellToReveal.childNodes[0];
+                  numToShow.style.display = 'block';
                } else {
                   continue;
-               }
-         }
-      }
-      // Pass in info about the positioning of the event
-      // Create a queue that will keep track of the positions to check
-      // Create a while loop that will continue to loop until the queue has nothing left to check
-      // Take out the first two items in the queue; first being row, second being column
-      // Make a list that represents the directions we need to check
-      // Loop through the neighbor list
-         // Check if the neighbors are empty or not
-         // If it is not empty open and go no further
-         // If it is empty, open and add that one to the queue
-         // Do not open mines
-   }
+            };
+         };
+      };
+   };
+   console.log(map);
 }
 
    this.revealCell = function(e) {
@@ -138,7 +126,7 @@ function Mineboard(rows, cols, mines) {
          cell.firstChild.style.display = 'block';
       } else {
          this.showEmptySpaces(cell);
-      }
+      };
    }
 
    this.mineExplosion = function() {
@@ -149,7 +137,7 @@ function Mineboard(rows, cols, mines) {
       // Randomly generating nums to place mines
       let mineIteration = 0;
 
-      while (mineIteration < 3) {
+      while (mineIteration < this.numberOfMines) {
          let x = Math.floor((Math.random() * this.widthOfBoard));
          let y = Math.floor((Math.random() * this.heightOfBoard));
 
@@ -209,14 +197,5 @@ function Mineboard(rows, cols, mines) {
    };
 }
 
-var easy = new Mineboard(7, 7, 5);
+var easy = new Mineboard(7, 7, 6);
 easy.createBoardGrid();
-
-// Generate a nested array map with several options: ' ', 'B'
-// Perhaps place all of the ' ' first and then use the place mines function to while loop through it and randomly place mines
-// Then, go back and add the numebrs inside of that array based on the bombs around it
-// Loop through the map array and create the board based on what is in the map
-// Click event will check whether it is a bomb, empty or number
-// If bomb display all the bombs
-// If number just display the number
-// If empty, ?(loop) through the areas around it and stop when there is a number
